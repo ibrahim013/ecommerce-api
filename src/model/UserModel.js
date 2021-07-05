@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
-import { isEmail } from 'validator';
+import validator from 'validator';
 
 const { Schema, model } = mongoose;
+const { isEmail } = validator;
 
 const userSchema = new Schema(
   {
@@ -21,10 +22,10 @@ const userSchema = new Schema(
       required: [true, 'Please enter a password'],
     },
     access: {
-        type: String,
-        enum:['admin', 'user'],
-        default: 'user',
-    }
+      type: String,
+      enum: ['admin', 'user'],
+      default: 'user',
+    },
   },
 
   { timestamps: true }

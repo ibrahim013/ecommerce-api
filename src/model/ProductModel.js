@@ -5,27 +5,27 @@ const { Schema, model, SchemaTypes } = mongoose;
 const productSchema = new Schema(
   {
     name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     description: {
-        type: String
+      type: String,
     },
-    category:{
-        categoryId: SchemaTypes.ObjectId(),
-        ref: "category"
+    category: {
+      type: SchemaTypes.ObjectId,
+      ref: 'category',
     },
     productImage: {
-        type: String
+      type: String,
     },
     price: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     dateAdded: {
-       type: Date,
-       default: Date.now 
-    }
+      type: Date,
+      default: Date.now,
+    },
   },
 
   { timestamps: true }

@@ -11,4 +11,8 @@ router.route('/s/:productId').get(ProductController.getProductById).delete().put
 router.route('/categories').get(ProductController.getCategory).post(authValidator, ProductController.createCategory)
 router.route('/categories/:id').put().delete()
 
+
+//Order Route==============
+router.route('/order').post(authValidator, ProductController.createOrder).get(ProductController.getOrder)
+
 export default router;

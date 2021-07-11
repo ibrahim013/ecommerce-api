@@ -44,6 +44,43 @@ const ProductController = {
     }
   },
 
+  updateCategoryById: async (req, res) => {
+    const { categoryId } = req.params;
+    try {
+      const category = await Category.findOne({_id: categoryId})
+        .lean()
+        .exec();
+      if (!category) {
+        return res
+          .status(400)
+          .json({ status: 'fail', message: `Oops! category with ${categoryId} cannot be found` });
+      }
+      return res
+        .status(200)
+        .json({ status: 'success', message: 'successful', data: category });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
+  },
+
+  removeCategoryById: async (req, res) => {
+    const { categoryId } = req.params;
+    try {
+      const category = await Category.findOne({_id: categoryId})
+        .lean()
+        .exec(); 
+      return res
+        .status(200)
+        .json({ status: 'success', message: 'successful', data: category });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
+  }, 
+
   createProduct: async (req, res) => {
     const { name, description, category, productImage, price, access } =
       req.body;

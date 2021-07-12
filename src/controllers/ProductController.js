@@ -122,8 +122,8 @@ const ProductController = {
   },
   // ORDER Controller===================
 createOrder: async (req, res) => {
-  const { userId, items } = req.body;
-  if (!userId || !items ) {
+  const { userId, items, bill } = req.body;
+  if (!userId || !items || !bill ) {
     return res
       .status(400)
       .json({ status: 'fail', message: 'Please select a product, the Cart is empty' });

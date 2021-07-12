@@ -87,7 +87,7 @@ const ProductController = {
     }
 
     try {
-      const product = await Product.find({}).populate().lean().exec();
+      const product = await Product.find({}).populate('category', 'name').lean().exec();
       const docCount = await Product.find({}).countDocuments();
       return res.status(201).json({
         status: 'success',
@@ -109,6 +109,7 @@ const ProductController = {
     const { productId } = req.params;
     try {
       const product = await Product.findOne({_id: productId})
+        .populate('category', 'name')
         .lean()
         .exec();
       return res

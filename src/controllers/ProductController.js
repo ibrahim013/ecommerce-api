@@ -44,6 +44,64 @@ const ProductController = {
     }
   },
 
+  editCategory: async (req, res) => {
+    // Check if user is admin
+    if(!req.body.access || req.body.access !== 'admin') {
+      return res.status(401).json({
+        status: "Failed", message: "Unauthorized user"
+      })
+    }
+
+    // Extract catgeory id passed
+    const { id: _id } = req.params;
+
+    // Extract needed vales from req body
+    const { name, description } = req.body;
+
+    try {
+      // Fetch category matching specified id
+      const foundCategory = await Category.findById({ _id }).lean().exec();
+
+      // Check if empty object was returned
+      if(!Object.keys(category).length) {
+        return res.status(400).json({
+          status: 'Fail',
+          message: "No id matches specified category"
+        });
+      }
+
+      // Update category information
+      const categoryUpdate = {
+        name: name ? name : foundCategory.name,
+        description: description ? description : foundCategory.description,
+      }
+
+      // Save updated user data to db
+      const updatedCategory = await Category.findByIdAndUpdate(
+        { _id },
+        categoryUpdate, 
+        { new: true }
+      );
+      
+      // If server error occurs
+      if(updatedCategory.length === 0) return res.status(400).json({ 
+        status: "Failed", message: "Oops! Error updating vategory"
+      });
+
+      return res.status(200).json({ 
+        status: "Success", 
+        message: "Category updated successfully", 
+        data: updatedCategory
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        status: 'Fail',
+        message: error.message
+      });
+    }
+  },
+
   createProduct: async (req, res) => {
     const { name, description, category, productImage, price, access } =
       req.body;
@@ -119,7 +177,7 @@ const ProductController = {
         .status(500)
         .json({ status: 'fail', message: 'server err', err });
     }
-  },
+  }
 };
 
 export default ProductController;

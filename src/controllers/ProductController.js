@@ -45,13 +45,6 @@ const ProductController = {
   },
 
   editCategory: async (req, res) => {
-    // Check if user is admin
-    if(!req.body.access || req.body.access !== 'admin') {
-      return res.status(401).json({
-        status: "Failed", message: "Unauthorized user"
-      })
-    }
-
     // Extract catgeory id passed
     const { id: _id } = req.params;
 

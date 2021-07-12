@@ -21,7 +21,7 @@ router.route('/categories/:id')
     ;
 router.route('/:productId')
     .get(ProductController.getProductById)
-    .put()
+    .put(authValidator, ProductController.updateProduct)
     .delete()
     ;
 

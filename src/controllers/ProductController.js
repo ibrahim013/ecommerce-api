@@ -116,6 +116,78 @@ const ProductController = {
         .json({ status: 'fail', message: 'server err', err });
     }
   },
+
+  updateProduct: async (req, res) => {
+    const { productId } = req.params;
+    const { name, description, category, productImage, price, access } = req.body;
+
+    if (!access || access !== 'admin') {
+      return res.status(401).json({ status: 'fail', message: 'unauthorized' });
+    }
+
+    if (!name || !description || !price || !category) {
+      return res.status(400)
+        .json({ status: 'fail', message: 'Please fill all fields' });
+    }
+
+    try {      
+      const product = await Product.findById(productId).exec();
+
+      // TODO send image to cloudinary ==> image url
+      // res.body.productImage = url sent back from image storage
+
+      product.name = name;
+      product.description = description;
+      product.category = category;
+      product.productImage = productImage;
+      product.price = price;
+      await product.save();
+
+      if (!product) {
+        return res
+          .status(400)
+          .json({ status: 'fail', message: 'product not updated' });
+      }
+
+      return res.status(200)
+        .json({ status: 'success', message: 'successfully updated', data: product });
+   
+    } catch (err) {
+      return res.status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
+  },
+
+  deleteProduct: async (req, res) => {
+    const { productId } = req.params;
+    const { access } = req.body;
+
+    if (!access || access !== 'admin') {
+      return res.status(401).json({ 
+        status: 'fail', 
+        message: 'unauthorized' 
+      });
+    }
+
+    try {
+      const product = await Product.findById(productId);
+      product.deleteOne();
+
+      return res.status(200).json({ 
+          status: 'success',
+          message: 'successfully deleted', 
+          data: product 
+        });
+          
+
+    } catch (err) {
+      return res.status(500).json({ 
+          status: 'fail', 
+          message: 'server err', 
+          err 
+        });
+    }
+  },
 };
 
 export default ProductController;

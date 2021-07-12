@@ -22,7 +22,7 @@ router.route('/categories/:id')
 router.route('/:productId')
     .get(ProductController.getProductById)
     .put(authValidator, ProductController.updateProduct)
-    .delete()
+    .delete(authValidator, ProductController.deleteProduct)
     ;
 
 export default router;

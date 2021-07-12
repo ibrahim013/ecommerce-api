@@ -157,6 +157,37 @@ const ProductController = {
         .json({ status: 'fail', message: 'server err', err });
     }
   },
+
+  deleteProduct: async (req, res) => {
+    const { productId } = req.params;
+    const { access } = req.body;
+
+    if (!access || access !== 'admin') {
+      return res.status(401).json({ 
+        status: 'fail', 
+        message: 'unauthorized' 
+      });
+    }
+
+    try {
+      const product = await Product.findById(productId);
+      product.deleteOne();
+
+      return res.status(200).json({ 
+          status: 'success',
+          message: 'successfully deleted', 
+          data: product 
+        });
+          
+
+    } catch (err) {
+      return res.status(500).json({ 
+          status: 'fail', 
+          message: 'server err', 
+          err 
+        });
+    }
+  },
 };
 
 export default ProductController;

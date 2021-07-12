@@ -50,9 +50,18 @@ const CartController = {
     }
   },
 
-  getCartById: async (req, res) => {},
+  getCart: async (req, res) => {
+    try {
+      const carts = await Cart.find({}).exec();
+      return res.status(200)
+        .json({ status: 'success', message: 'successful', data: carts });
+    } catch (err) {
+      return res.status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
+  },
 
-  getCart: async (req, res) => {},
+  getCartById: async (req, res) => {},
 
 
   updateCart: async (req, res) => {},

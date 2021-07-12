@@ -1,5 +1,6 @@
 import { Category } from '../model/CategoryModel.js';
 import { Product } from '../model/ProductModel.js';
+import pagination from '../services/pagination.js';
 
 const ProductController = {
   createCategory: async (req, res) => {
@@ -77,26 +78,20 @@ const ProductController = {
   },
 
   getProduct: async (req, res) => {
-    const PAGE_SIZE = 20;
-    let page = 1;
-    let skip;
-
-    if (req.query.page) {
-      page = Number(req.query.page);
-      skip = (page - 1) * PAGE_SIZE;
-    }
 
     try {
       const product = await Product.find({}).populate('category', 'name').lean().exec();
-      const docCount = await Product.find({}).countDocuments();
+      const pgn = await pagination(req, 1, Product);
+      
       return res.status(201).json({
         status: 'success',
         message: 'successful',
         data: product,
-        documentCount: docCount,
-        totalPages: Math.ceil(docCount / PAGE_SIZE),
-        nextPage:
-          Math.ceil(docCount / PAGE_SIZE) > page ? `/${page + 1}` : null,
+
+        // pagination
+        documentCount: pgn.documentCount,
+        totalPages: pgn.totalPages,
+        nextPage: pgn.nextPage,
       });
     } catch (err) {
       return res

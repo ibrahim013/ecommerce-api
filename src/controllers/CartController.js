@@ -61,7 +61,20 @@ const CartController = {
     }
   },
 
-  getCartById: async (req, res) => {},
+  getCartById: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const cart = await Cart.findById(id) 
+        .populate('user', 'name', 'email')       
+        .exec()
+        ;
+      return res.status(200)
+        .json({ status: 'success', message: 'cart retrieved', data: cart });
+    } catch (err) {
+      return res.status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
+  },
 
 
   updateCart: async (req, res) => {},

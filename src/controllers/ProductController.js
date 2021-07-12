@@ -123,13 +123,10 @@ const ProductController = {
   // ORDER Controller===================
 createOrder: async (req, res) => {
   const { userId, items } = req.body;
-  // if (!access || access !== 'admin') {
-  //   return res.status(401).json({ status: 'fail', message: 'unauthorized' });
-  // }
   if (!userId || !items ) {
     return res
       .status(400)
-      .json({ status: 'fail', message: 'Please select a product' });
+      .json({ status: 'fail', message: 'Please select a product, the Cart is empty' });
   }
 
   try {

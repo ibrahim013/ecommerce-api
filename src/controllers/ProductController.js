@@ -55,37 +55,24 @@ const ProductController = {
     // Extract catgeory id passed
     const { id: _id } = req.params;
 
-    // Extract needed vales from req body
-    const { name, description } = req.body;
+    // Check if there's at least one information to update
+    if(![ req.body.name, req.body.description ].some(Boolean)) {
+      return res.status(400).json({
+        status: "Failed", message: "All fields cannot be blank to update category"
+      })
+    }
 
     try {
-      // Fetch category matching specified id
-      const foundCategory = await Category.findById({ _id }).lean().exec();
-
-      // Check if empty object was returned
-      if(!Object.keys(category).length) {
-        return res.status(400).json({
-          status: 'Fail',
-          message: "No id matches specified category"
-        });
-      }
-
-      // Update category information
-      const categoryUpdate = {
-        name: name ? name : foundCategory.name,
-        description: description ? description : foundCategory.description,
-      }
-
-      // Save updated user data to db
+      // Update category details in db
       const updatedCategory = await Category.findByIdAndUpdate(
         { _id },
-        categoryUpdate, 
+        req.body,
         { new: true }
       );
       
-      // If server error occurs
-      if(updatedCategory.length === 0) return res.status(400).json({ 
-        status: "Failed", message: "Oops! Error updating vategory"
+      // If server error occurs OR no matching id was found
+      if(!updatedCategory.length || !updatedCategory) return res.status(404).json({ 
+        status: "Failed", message: "Oops! Error updating category"
       });
 
       return res.status(200).json({ 

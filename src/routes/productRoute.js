@@ -11,16 +11,16 @@ router.route('/')
     .post(authValidator, ProductController.createProduct)
     .get(ProductController.getProduct)
     ;
-router.route('/s/:productId')
-    .get(ProductController.getProductById)
-    .delete()
-    .put()
-    ;
 router.route('/categories')
     .get(ProductController.getCategory)
     .post(authValidator, ProductController.createCategory)
     ;
 router.route('/categories/:id')
+    .put()
+    .delete()
+    ;
+router.route('/:productId')
+    .get(ProductController.getProductById)
     .put()
     .delete()
     ;

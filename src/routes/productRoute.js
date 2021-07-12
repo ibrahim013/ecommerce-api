@@ -3,7 +3,6 @@ import ProductController from '../controllers/ProductController.js';
 
 import authValidator from '../middleware/AuthValidator.js';
 
-
 const router = Router();
 
 router.route('/').post(authValidator, ProductController.createProduct).get(ProductController.getProduct);

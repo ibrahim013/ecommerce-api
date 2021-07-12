@@ -136,7 +136,27 @@ const CartController = {
   },
 
 
-  deleteCart: async (req, res) => {},
+  deleteCart: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const cart = await Cart.findById(id);
+      cart.deleteOne();
+
+      return res.status(200).json({ 
+          status: 'success',
+          message: 'cart deleted successfully.', 
+        });
+          
+
+    } catch (err) {
+      return res.status(500).json({ 
+          status: 'fail', 
+          message: 'server err', 
+          err 
+        });
+    }
+  },
 
 }
 

@@ -44,6 +44,44 @@ const ProductController = {
     }
   },
 
+  editCategory: async (req, res) => {
+    // Extract catgeory id passed
+    const { id: _id } = req.params;
+
+    // Check if there's at least one information to update
+    if(![ req.body.name, req.body.description ].some(Boolean)) {
+      return res.status(400).json({
+        status: "Failed", message: "All fields cannot be blank to update category"
+      })
+    }
+
+    try {
+      // Update category details in db
+      const updatedCategory = await Category.findByIdAndUpdate(
+        { _id },
+        req.body,
+        { new: true }
+      );
+      
+      // If server error occurs OR no matching id was found
+      if(!updatedCategory.length || !updatedCategory) return res.status(404).json({ 
+        status: "Failed", message: "Oops! Error updating category"
+      });
+
+      return res.status(200).json({ 
+        status: "Success", 
+        message: "Category updated successfully", 
+        data: updatedCategory
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        status: 'Fail',
+        message: error.message
+      });
+    }
+  },
+
   createProduct: async (req, res) => {
     const { name, description, category, productImage, price, access } =
       req.body;
@@ -119,7 +157,7 @@ const ProductController = {
         .status(500)
         .json({ status: 'fail', message: 'server err', err });
     }
-  },
+  }
 };
 
 export default ProductController;

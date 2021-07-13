@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import userRouter from './routes/userRoute.js';
 import productRouter from './routes/productRoute.js';
+import cartRouter from './routes/cartRoute.js'
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.get('/', (req, res) => {
 //read
 app.use('/users', userRouter);
 app.use('/products', productRouter)
+app.use('/cart', cartRouter)
 
 export default app

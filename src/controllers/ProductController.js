@@ -165,7 +165,7 @@ createOrder: async (req, res) => {
   if (!userId || !items || !bill ) {
     return res
       .status(400)
-      .json({ status: 'fail', message: 'Please, the Cart is empty' });
+      .json({ status: 'fail', message: 'Please, the Product Cart is empty' });
   }
 
   try {

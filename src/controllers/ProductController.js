@@ -158,5 +158,62 @@ const ProductController = {
         .json({ status: 'fail', message: 'server err', err });
     }
   },
+   // ORDER Controller===================
+createOrder: async (req, res) => {
+
+  const { userId, items, bill } = req.body;
+  if (!userId || !items || !bill ) {
+    return res
+      .status(400)
+      .json({ status: 'fail', message: 'Please, the Cart is empty' });
+  }
+
+  try {
+    const newOrder = new Order(req.body);
+    const order = await newOrder.save();
+    if (!order) {
+      return res
+        .status(400)
+        .json({ status: 'fail', message: 'something went wrong' });
+    }
+    return res
+      .status(201)
+      .json({ status: 'success', message: 'successful', data: order });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ status: 'fail', message: 'server err', err });
+  }
+},
+
+getOrder: async (req, res) => {
+  const PAGE_SIZE = 20;
+  let page = 1;
+  let skip;
+
+  if (req.query.page) {
+    page = Number(req.query.page);
+    skip = (page - 1) * PAGE_SIZE;
+  }
+
+  try {
+    const order = await Order.find({}).populate().lean().exec();
+    const docCount = await Order.find({}).countDocuments();
+    return res.status(201).json({
+      status: 'success',
+      message: 'successful',
+      data: order,
+      documentCount: docCount,
+      totalPages: Math.ceil(docCount / PAGE_SIZE),
+      nextPage:
+        Math.ceil(docCount / PAGE_SIZE) > page ? `/${page + 1}` : null,
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ status: 'fail', message: 'server err', err });
+  }
 }
+}
+
 export default ProductController;

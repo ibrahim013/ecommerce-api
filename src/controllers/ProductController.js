@@ -44,6 +44,44 @@ const ProductController = {
     }
   },
 
+  editCategory: async (req, res) => {
+    // Extract catgeory id passed
+    const { id: _id } = req.params;
+
+    // Check if there's at least one information to update
+    if(![ req.body.name, req.body.description ].some(Boolean)) {
+      return res.status(400).json({
+        status: "Failed", message: "All fields cannot be blank to update category"
+      })
+    }
+
+    try {
+      // Update category details in db
+      const updatedCategory = await Category.findByIdAndUpdate(
+        { _id },
+        req.body,
+        { new: true }
+      );
+      
+      // If server error occurs OR no matching id was found
+      if(!updatedCategory.length || !updatedCategory) return res.status(404).json({ 
+        status: "Failed", message: "Oops! Error updating category"
+      });
+
+      return res.status(200).json({ 
+        status: "Success", 
+        message: "Category updated successfully", 
+        data: updatedCategory
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        status: 'Fail',
+        message: error.message
+      });
+    }
+  },
+
   createProduct: async (req, res) => {
     const { name, description, category, productImage, price, access } =
       req.body;
@@ -120,61 +158,5 @@ const ProductController = {
         .json({ status: 'fail', message: 'server err', err });
     }
   },
-  // ORDER Controller===================
-createOrder: async (req, res) => {
-  const { userId, items, bill } = req.body;
-  if (!userId || !items || !bill ) {
-    return res
-      .status(400)
-      .json({ status: 'fail', message: 'Please select a product, the Cart is empty' });
-  }
-
-  try {
-    const newOrder = new Order(req.body);
-    const order = await newOrder.save();
-    if (!order) {
-      return res
-        .status(400)
-        .json({ status: 'fail', message: 'something went wrong' });
-    }
-    return res
-      .status(201)
-      .json({ status: 'success', message: 'successful', data: order });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ status: 'fail', message: 'server err', err });
-  }
-},
-
-getOrder: async (req, res) => {
-  const PAGE_SIZE = 20;
-  let page = 1;
-  let skip;
-
-  if (req.query.page) {
-    page = Number(req.query.page);
-    skip = (page - 1) * PAGE_SIZE;
-  }
-
-  try {
-    const order = await Order.find({}).populate().lean().exec();
-    const docCount = await Order.find({}).countDocuments();
-    return res.status(201).json({
-      status: 'success',
-      message: 'successful',
-      data: order,
-      documentCount: docCount,
-      totalPages: Math.ceil(docCount / PAGE_SIZE),
-      nextPage:
-        Math.ceil(docCount / PAGE_SIZE) > page ? `/${page + 1}` : null,
-    });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ status: 'fail', message: 'server err', err });
-  }
 }
-};
-
 export default ProductController;

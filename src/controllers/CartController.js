@@ -26,15 +26,15 @@ const CartController = {
 
             const saveCart = await newCart.save()
 
-            return res.status(201).json({status: 'success', message: saveCart})
+            return res.status(201).json({status: 'success', data: saveCart})
 
             
         } catch (err) {
-            console.log(err)
+            
             return res.status(500).json(
                 {
                     status: 'failed', 
-                    message: 'server error', err
+                    message: 'server error'
                 }
             )
         }
@@ -51,9 +51,9 @@ const CartController = {
             })
             
         } catch (err) {
-            console.log(err)
+           
             return res.status(500).json({
-                message: 'server error', err
+                message: 'server error'
             })
         
         }
@@ -75,13 +75,12 @@ const CartController = {
 
             return res.status(200).json({
                 status: 'Updated successfully!',
-                message: updateCart
+                data: updateCart
             })
 
         } catch (err) {
-            console.log(err)
             return res.status(500).json({
-                message: 'server error', err
+                message: 'server error'
             })
         }
     },
@@ -99,8 +98,7 @@ const CartController = {
             return res.status(204).json({message: 'Deleted successfully!'})
     
         } catch (err) {
-            console.log(err)
-            return res.status(500).json({message: 'server err', err})
+            return res.status(500).json({message: 'server err'})
         }
     }
 

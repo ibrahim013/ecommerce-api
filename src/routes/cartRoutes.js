@@ -1,7 +1,5 @@
-// import { Router } from 'express';
+import { Router } from 'express';
 import cors from 'cors';
-import pkg from 'express';
-const { Router } = pkg;
 import CartController from '../controllers/CartController.js';
 
 const router = Router();

@@ -29,13 +29,9 @@ const CartController = {
     }
 
     try {
-      // const newCart = new Cart(req.body);
-      const newCart = new Cart();
-      newCart.userId = userId;
-      newCart.items = items;
-      newCart.bill = bill;
-      newCart.dateAdded = dateAdded;
+      const newCart = new Cart(req.body);
 
+      newCart.bill = bill;
       const cart = await newCart.save();
       if (!cart) {
         return res

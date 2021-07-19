@@ -1,5 +1,4 @@
-import pkg from 'express';
-const { Router } = pkg;
+import { Router } from 'express';
 import ProductController from '../controllers/ProductController.js';
 
 import authValidator from '../middleware/AuthValidator.js';

@@ -1,5 +1,4 @@
-import pkg from 'express';
-const { Router } = pkg;
+import { Router } from 'express';
 import AuthController from '../controllers/AuthController.js';
 
 const router = Router();

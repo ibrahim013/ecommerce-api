@@ -12,5 +12,5 @@ it('get route', async () => {
 it('doesnt get route', async () => {
   const response = await request.get('/');
   expect(response.status).toBe(200);
-  expect(response.body.message).not.toBe('hello world');
+  expect(response.body.message).not.toBe('hello');
 });

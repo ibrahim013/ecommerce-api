@@ -1,5 +1,6 @@
 import { Category } from '../model/CategoryModel.js';
 import { Product } from '../model/ProductModel.js';
+import pagination from '../services/pagination.js';
 
 const ProductController = {
   createCategory: async (req, res) => {
@@ -115,26 +116,20 @@ const ProductController = {
   },
 
   getProduct: async (req, res) => {
-    const PAGE_SIZE = 20;
-    let page = 1;
-    let skip;
-
-    if (req.query.page) {
-      page = Number(req.query.page);
-      skip = (page - 1) * PAGE_SIZE;
-    }
 
     try {
-      const product = await Product.find({}).populate().lean().exec();
-      const docCount = await Product.find({}).countDocuments();
+      const product = await Product.find({}).populate('category', 'name').lean().exec();
+      const pgn = await pagination(req, 1, Product);
+      
       return res.status(201).json({
         status: 'success',
         message: 'successful',
         data: product,
-        documentCount: docCount,
-        totalPages: Math.ceil(docCount / PAGE_SIZE),
-        nextPage:
-          Math.ceil(docCount / PAGE_SIZE) > page ? `/${page + 1}` : null,
+
+        // pagination
+        documentCount: pgn.documentCount,
+        totalPages: pgn.totalPages,
+        nextPage: pgn.nextPage,
       });
     } catch (err) {
       return res
@@ -147,6 +142,7 @@ const ProductController = {
     const { productId } = req.params;
     try {
       const product = await Product.findOne({_id: productId})
+        .populate('category', 'name')
         .lean()
         .exec();
       return res
@@ -158,62 +154,136 @@ const ProductController = {
         .json({ status: 'fail', message: 'server err', err });
     }
   },
-   // ORDER Controller===================
-createOrder: async (req, res) => {
 
-  const { userId, items, bill } = req.body;
-  if (!userId || !items || !bill ) {
-    return res
-      .status(400)
-      .json({ status: 'fail', message: 'Please, the Product Cart is empty' });
-  }
+  updateProduct: async (req, res) => {
+    const { productId } = req.params;
+    const { name, description, category, productImage, price, access } = req.body;
 
-  try {
-    const newOrder = new Order(req.body);
-    const order = await newOrder.save();
-    if (!order) {
+    if (!access || access !== 'admin') {
+      return res.status(401).json({ status: 'fail', message: 'unauthorized' });
+    }
+
+    if (!name || !description || !price || !category) {
+      return res.status(400)
+        .json({ status: 'fail', message: 'Please fill all fields' });
+    }
+
+    try {      
+      const product = await Product.findById(productId).exec();
+
+      // TODO send image to cloudinary ==> image url
+      // res.body.productImage = url sent back from image storage
+
+      product.name = name;
+      product.description = description;
+      product.category = category;
+      product.productImage = productImage;
+      product.price = price;
+      await product.save();
+
+      if (!product) {
+        return res
+          .status(400)
+          .json({ status: 'fail', message: 'product not updated' });
+      }
+
+      return res.status(200)
+        .json({ status: 'success', message: 'successfully updated', data: product });
+   
+    } catch (err) {
+      return res.status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
+  },
+
+  deleteProduct: async (req, res) => {
+    const { productId } = req.params;
+    const { access } = req.body;
+
+    if (!access || access !== 'admin') {
+      return res.status(401).json({ 
+        status: 'fail', 
+        message: 'unauthorized' 
+      });
+    }
+
+    try {
+      const product = await Product.findById(productId);
+      product.deleteOne();
+
+      return res.status(200).json({ 
+          status: 'success',
+          message: 'successfully deleted', 
+          data: product 
+        });
+          
+
+    } catch (err) {
+      return res.status(500).json({ 
+          status: 'fail', 
+          message: 'server err', 
+          err 
+        });
+    }
+  },
+// };
+
+  // ORDER Controller===================
+  createOrder: async (req, res) => {
+
+    const { userId, items, bill } = req.body;
+    if (!userId || !items || !bill ) {
       return res
         .status(400)
-        .json({ status: 'fail', message: 'something went wrong' });
+        .json({ status: 'fail', message: 'Please, the Product Cart is empty' });
     }
-    return res
-      .status(201)
-      .json({ status: 'success', message: 'successful', data: order });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ status: 'fail', message: 'server err', err });
-  }
-},
 
-getOrder: async (req, res) => {
-  const PAGE_SIZE = 20;
-  let page = 1;
-  let skip;
+    try {
+      const newOrder = new Order(req.body);
+      const order = await newOrder.save();
+      if (!order) {
+        return res
+          .status(400)
+          .json({ status: 'fail', message: 'something went wrong' });
+      }
+      return res
+        .status(201)
+        .json({ status: 'success', message: 'successful', data: order });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
+  },
 
-  if (req.query.page) {
-    page = Number(req.query.page);
-    skip = (page - 1) * PAGE_SIZE;
-  }
+  getOrder: async (req, res) => {
+    const PAGE_SIZE = 20;
+    let page = 1;
+    let skip;
 
-  try {
-    const order = await Order.find({}).populate().lean().exec();
-    const docCount = await Order.find({}).countDocuments();
-    return res.status(201).json({
-      status: 'success',
-      message: 'successful',
-      data: order,
-      documentCount: docCount,
-      totalPages: Math.ceil(docCount / PAGE_SIZE),
-      nextPage:
-        Math.ceil(docCount / PAGE_SIZE) > page ? `/${page + 1}` : null,
-    });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ status: 'fail', message: 'server err', err });
+    if (req.query.page) {
+      page = Number(req.query.page);
+      skip = (page - 1) * PAGE_SIZE;
+    }
+
+    try {
+      const order = await Order.find({}).populate().lean().exec();
+      const docCount = await Order.find({}).countDocuments();
+      return res.status(201).json({
+        status: 'success',
+        message: 'successful',
+        data: order,
+        documentCount: docCount,
+        totalPages: Math.ceil(docCount / PAGE_SIZE),
+        nextPage:
+          Math.ceil(docCount / PAGE_SIZE) > page ? `/${page + 1}` : null,
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ status: 'fail', message: 'server err', err });
+    }
   }
-}
 }
 
 export default ProductController;
